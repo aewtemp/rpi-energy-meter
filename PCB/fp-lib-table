@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "RPiWattMeterFootprints")(type "KiCad")(uri "${KIPRJMOD}/RPiWattMeterFootprints.pretty")(options "")(descr ""))
+  (lib (name "PhoenixContact")(type "Legacy")(uri "G:/Downloads/SMD Parts Library/129823644_LIB_1891108/1891108/KiCad")(options "")(descr "")(disabled))
+)

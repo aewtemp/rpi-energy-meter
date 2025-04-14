@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "Wuerth")(type "KiCad")(uri "${KIPRJMOD}/Wuerth.kicad_sym")(options "")(descr ""))
+  (lib (name "Hammond")(type "KiCad")(uri "${KIPRJMOD}/Hammond.kicad_sym")(options "")(descr ""))
+)
