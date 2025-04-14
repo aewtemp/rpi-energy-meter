@@ -1,0 +1,13 @@
+[Unit]
+Description=Rpi Energy Meter
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+KillSignal=SIGINT
+WorkingDirectory=/run/rpi-energy-meter
+ExecStart=/usr/bin/rpi-energy-meter
+
+[Install]
+WantedBy=multi-user.target

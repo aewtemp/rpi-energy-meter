@@ -1,0 +1,48 @@
+/*
+ * Device tree overlay for using 4 CS pins on spi0 by Kristian Sloth Lauszus.
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2835";
+
+    fragment@0 {
+        target = <&spi0>;
+        frag0: __overlay__ {
+            /* needed to avoid dtc warning */
+            #address-cells = <1>;
+            #size-cells = <0>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&spi0_pins &spi0_cs_pins>;
+            cs-gpios = <&gpio 8 1>, <&gpio 7 1>, <&gpio 16 1>;
+            status = "okay"; /* enable spi0 */
+
+            spidev@2 {
+                compatible = "spidev";
+                reg = <2>;   /* CE2 */
+                spi-max-frequency = <125000000>;
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&gpio>;
+        __overlay__ {
+            spi0_cs_pins: spi0_cs_pins {
+                brcm,pins = <8 7 16>;
+                brcm,function = <1>; /* out */
+            };
+        };
+    };
+
+    __overrides__ {
+        cs0_pin = <&frag0>,"cs-gpios:4",
+                  <&spi0_cs_pins>,"brcm,pins:0";
+        cs1_pin = <&frag0>,"cs-gpios:16",
+                  <&spi0_cs_pins>,"brcm,pins:4";
+        cs2_pin = <&frag0>,"cs-gpios:28",
+                  <&spi0_cs_pins>,"brcm,pins:8";
+    };
+};

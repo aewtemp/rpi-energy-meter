@@ -1,0 +1,172 @@
+[GENERAL]
+# Using a multimeter, measure the voltage of the voltage Reference on the chips ( PIN 15 vs. PIN 14 )
+VREF = 3.297
+
+# ADC Resolution in 2^Bits
+ADC_RESOLUTION = 2**10
+# ADC Samplerate in Samples per second, taken out of debug mode
+ADC_SAMPLERATE = 3250
+# ADC samples to take
+ADC_SAMPLES = 400
+
+[INFLUX]
+host = "127.0.0.1"
+port = 8086
+token = ""
+organization = ""
+bucket = "RpiEnergyMeter"
+
+[PHASES]
+# Count of Phases to be measured
+COUNT = 3
+# Grid supply frequency in hertz
+FREQUENCY = 50.00
+# Ratio of the voltage divider after the 9V AC transformer. You'll likely get this info from the Board design
+TRANSFORMER_VDIVIDER = 1/11
+
+[PHASES.1]
+# Using a multimeter, measure the voltage of the receptacle where your 9V AC transformer will plug into. Enter the measured value below.
+VOLTAGE = 238.50
+# Using a multimeter, measure the output voltage of your AC transformer. Using the value on the label is not ideal and will lead to greater accuracy in the calculations.
+TRANSFORMER_OUTPUT_VOLTAGE = 12.08
+# Using Debug or Terminal mode to get the reading on the AC Voltage channel and compare that
+[PHASES.2]
+# Using a multimeter, measure the voltage of the receptacle where your 9V AC transformer will plug into. Enter the measured value below.
+VOLTAGE = 238.50
+TRANSFORMER_OUTPUT_VOLTAGE = 12.08
+[PHASES.3]
+# Using a multimeter, measure the voltage of the receptacle where your 9V AC transformer will plug into. Enter the measured value below.
+VOLTAGE = 238.50
+# Using a multimeter, measure the output voltage of your AC transformer. Using the value on the label is not ideal and will lead to greater accuracy in the calculations.
+TRANSFORMER_OUTPUT_VOLTAGE = 12.08
+
+[CTS]
+BURDEN_RESISTANCE = 22.00
+
+[CTS.1.1]
+DESCRIPTION = "Phase 1 Inlet"
+TYPE = "mains"
+SHIFT = 0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.1.2]
+DESCRIPTION = "Kitchen Oven 1"
+TYPE = "consumption"
+SHIFT = 0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.1.3]
+DESCRIPTION = "Water Boiler 1"
+TYPE = "consumption"
+SHIFT = 0.137
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.1.4]
+DESCRIPTION = "Cellar"
+TYPE = "consumption"
+SHIFT = -0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.1.5]
+DESCRIPTION = "Bedroom Parents"
+TYPE = "consumption"
+SHIFT = -0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.1.6]
+DESCRIPTION = "Solar Power 1"
+TYPE = "production"
+SHIFT = -0.170
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+
+[CTS.2.1]
+DESCRIPTION = "Phase 2 Inlet"
+TYPE = "mains"
+SHIFT = 0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.2.2]
+DESCRIPTION = "Kitchen Oven 2"
+TYPE = "consumption"
+SHIFT = 0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.2.3]
+DESCRIPTION = "Water Boiler 2"
+TYPE = "consumption"
+SHIFT = 0.137
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.2.4]
+DESCRIPTION = "Bedroom Child 1"
+TYPE = "consumption"
+SHIFT = -0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.2.5]
+DESCRIPTION = "Bathroom"
+TYPE = "consumption"
+SHIFT = -0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.2.6]
+DESCRIPTION = "Solar Power 2"
+TYPE = "production"
+SHIFT = -0.170
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+
+[CTS.3.1]
+DESCRIPTION = "Phase 3 Inlet"
+TYPE = "mains"
+SHIFT = 0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.3.2]
+DESCRIPTION = "Kitchen Oven 3"
+TYPE = "consumption"
+SHIFT = 0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.3.3]
+DESCRIPTION = "Water Boiler 3"
+TYPE = "consumption"
+SHIFT = 0.137
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.3.4]
+DESCRIPTION = "Garage"
+TYPE = "consumption"
+SHIFT = -0.148
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.3.5]
+DESCRIPTION = "Hallway"
+TYPE = "consumption"
+SHIFT = -0.159
+FACTOR = 0.9950
+CUTOFF = 0.026
+
+[CTS.3.6]
+DESCRIPTION = "Solar Power 3"
+TYPE = "production"
+SHIFT = -0.170
+FACTOR = 0.9950
+CUTOFF = 0.026
