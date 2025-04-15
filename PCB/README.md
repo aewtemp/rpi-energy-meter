@@ -11,6 +11,6 @@ This is a DIY project and comes with **no warranty or guarantee** of safety or p
 I personally have this setup running now for 2 years.
 
 ## Pictures of running setup
-![Installation 1](../images/Installation1.jpg?raw=true)  
-![Installation 2](../images/Installation2.jpg?raw=true)  
-![Installation 3](../images/Installation3.jpg?raw=true)
+![Installation 1](../images/Installation1.jpeg?raw=true)  
+![Installation 2](../images/Installation2.jpeg?raw=true)  
+![Installation 3](../images/Installation3.jpeg?raw=true)

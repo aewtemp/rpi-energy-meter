@@ -1,0 +1,24 @@
+[tool.black]
+line-length = 120
+target-version = ["py38"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.venv
+  | __pycache__
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+
+[tool.pylint]
+max-line-length = 120
+disable = ["C0114", "C0115", "C0116"]  # Ignoriere fehlende Docstrings in Pylint
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+ignore_missing_imports = true
