@@ -79,7 +79,7 @@ def load_config(path: Union[str, Path]) -> Box:
 def write_config(path: Union[str, Path], config: Box) -> None:
     
     path = Path(path)
-    with open("config.toml", "wb") as f:
+    with path.open("wb") as f:
         tomli_w.dump(config.to_dict(), f)
 
 
