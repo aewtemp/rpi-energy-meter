@@ -196,7 +196,7 @@ class SAMPLES():
         self.set_samples(shifted.real, str_ct)
 
 
-    def calculate_power(self):
+    def calculate_power(self, phase, config):
         """Calculates Power values for all saved Measurements
 
         Returns:
@@ -240,8 +240,6 @@ class SAMPLES():
             avg_raw_current = (sum_raw_current / num_samples)
 
             real_power = ((sum_inst_power / num_samples) - (avg_raw_current * avg_raw_voltage))
-            # Ignore 5 W as it is swinging around 0.
-            real_power = 0.00 if (-5.00 < real_power < 5.00) else real_power
 
             mean_square_voltage = (sum_squared_voltage / num_samples)
             mean_square_current = (sum_squared_current / num_samples)
@@ -259,6 +257,11 @@ class SAMPLES():
             except ZeroDivisionError:
                 power_factor = 0.00
 
+            # Cutoff handling
+            if config.CTS[str(phase)][str(i+1)].CUTOFF != 0:
+                if abs(real_power) < config.CTS[str(phase)][str(i+1)].CUTOFF:
+                    real_power = 0.00
+                    power_factor = 0.00
 
             self._power[i]['Voltage'] = round(rms_voltage, 2)
             self._power[i]['Current'] = round(rms_current, 2)
