@@ -5,14 +5,17 @@ This module contains functions that are used in both, the main RpiEnergyMeter co
 import time
 import sys
 import numpy
+import csv
 # import docker
 # import subprocess
 
+from datetime import datetime
 from influxdb_client import Point
 from socket import getfqdn
 from cmath import sqrt
 from time import sleep
-from textwrap import dedent
+from socket import socket, AF_INET, SOCK_DGRAM
+from prettytable import PrettyTable
 
 from .logging import logger
 
@@ -82,7 +85,7 @@ def generate_bias_value(config):
     return (511 / config.GENERAL.ADC_RESOLUTION) * config.GENERAL.VREF
 
 
-def collect_data(config, adc, measurements, numSamples) -> None:
+def collect_data(config, phase, adc, measurements, numSamples) -> None:
     """Collects {numSamples} of raw data for every ADC channel and fills {measurements} as a dict with the values from {adc}
 
     Args:
@@ -106,18 +109,18 @@ def collect_data(config, adc, measurements, numSamples) -> None:
     time_start = time.time()
     # Start the gathering
     for i in range(numSamples):
-        bias_data = adc.read(adc_channel_bias)
+        bias_data = adc.read(config.VOLTMETER[str(phase)].BIAS.CHANNEL)
         
-        ct1_data[i] = adc.read(adc_channel_ct1)
-        ct2_data[i] = adc.read(adc_channel_ct2)
-        ct3_data[i] = adc.read(adc_channel_ct3)
+        ct1_data[i] = adc.read(config.CTS[str(phase)]["1"].CHANNEL)
+        ct2_data[i] = adc.read(config.CTS[str(phase)]["2"].CHANNEL)
+        ct3_data[i] = adc.read(config.CTS[str(phase)]["3"].CHANNEL)
 
-        v_data[i] = adc.read(adc_channel_vac)
+        v_data[i] = adc.read(config.VOLTMETER[str(phase)].VAC.CHANNEL)
         t[i] = time.time()
 
-        ct4_data[i] = adc.read(adc_channel_ct4)
-        ct5_data[i] = adc.read(adc_channel_ct5)
-        ct6_data[i] = adc.read(adc_channel_ct6)
+        ct4_data[i] = adc.read(config.CTS[str(phase)]["4"].CHANNEL)
+        ct5_data[i] = adc.read(config.CTS[str(phase)]["5"].CHANNEL)
+        ct6_data[i] = adc.read(config.CTS[str(phase)]["6"].CHANNEL)
 
     # Some info
     took = time.time() - time_start
@@ -135,13 +138,13 @@ def collect_data(config, adc, measurements, numSamples) -> None:
         ct5_data[i] = (ct5_data[i] - bias_data)
         ct6_data[i] = (ct6_data[i] - bias_data)
 
-    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE * config.PHASES.TRANSFORMER_VDIVIDER) )
-    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
+    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER) )
+    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
 
 
     # Fill given instance with data
@@ -156,7 +159,7 @@ def collect_data(config, adc, measurements, numSamples) -> None:
 
 
 
-def collect_data2(config, adc, measurements, numSamples) -> None:
+def collect_data2(config, phase, adc, measurements, numSamples) -> None:
     """Collects {numSamples} of raw data for every ADC channel and fills {measurements} as a dict with the values from {adc}
 
     Args:
@@ -181,18 +184,18 @@ def collect_data2(config, adc, measurements, numSamples) -> None:
     # Start the gathering
     _data = adc.read(samples=numSamples)
     for i in range(len(_data)):
-        bias_data = _data[i][adc_channel_bias]
+        bias_data = _data[i][config.VOLTMETER[str(phase)].BIAS.CHANNEL]
         
-        ct1_data[i] = _data[i][adc_channel_ct1] - bias_data
-        ct2_data[i] = _data[i][adc_channel_ct2] - bias_data
-        ct3_data[i] = _data[i][adc_channel_ct3] - bias_data
+        ct1_data[i] = _data[i][config.CTS[str(phase)]["1"].CHANNEL] - bias_data
+        ct2_data[i] = _data[i][config.CTS[str(phase)]["2"].CHANNEL] - bias_data
+        ct3_data[i] = _data[i][config.CTS[str(phase)]["3"].CHANNEL] - bias_data
 
-        v_data[i] = _data[i][adc_channel_vac] - bias_data
+        v_data[i] = _data[i][config.VOLTMETER[str(phase)].VAC.CHANNEL] - bias_data
         t[i] = time.time()
 
-        ct4_data[i] = _data[i][adc_channel_ct4] - bias_data
-        ct5_data[i] = _data[i][adc_channel_ct5] - bias_data
-        ct6_data[i] = _data[i][adc_channel_ct6] - bias_data
+        ct4_data[i] = _data[i][config.CTS[str(phase)]["4"].CHANNEL] - bias_data
+        ct5_data[i] = _data[i][config.CTS[str(phase)]["5"].CHANNEL] - bias_data
+        ct6_data[i] = _data[i][config.CTS[str(phase)]["6"].CHANNEL] - bias_data
 
     # Some info
     took = time.time() - time_start
@@ -200,13 +203,13 @@ def collect_data2(config, adc, measurements, numSamples) -> None:
     logger.debug(f"... that evaluates to {8 * numSamples / took} samples / second")
     logger.debug(f"... that evaluates to {8 * numSamples / took / 1000} samples / milli second")
 
-    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE * config.PHASES.TRANSFORMER_VDIVIDER) )
-    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
-    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CT_WINDING_RATIO)
+    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
+    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
 
 
     # Fill given instance with data
@@ -373,27 +376,26 @@ def to_point(phase: int, measurements: dict, amount: int, name: str, time: int):
 
 
 
-def dump_data(dump_type, samples):
-    speed_kHz = spi.max_speed_hz / 1000
-    now = time.time().stfrtime('%m-%d-%Y-%H-%M')
-    filename = f'data-dump-{now}.csv'
+def dump_data(phase, samples):
+    now = datetime.now().strftime('%m-%d-%Y-%H-%M')
+    filename = f'data-dump-phase{phase}-{now}.csv'
     with open(filename, 'w') as f:
         headers = ["Sample#", "ct1", "ct2", "ct3", "ct4", "ct5", "ct6", "voltage"]
         writer = csv.writer(f)
         writer.writerow(headers)
         # samples contains lists for each data sample.
-        for i in range(0, len(samples[0])):
-            ct1_data = samples[0]
-            ct2_data = samples[1]
-            ct3_data = samples[2]
-            ct4_data = samples[3]
-            ct5_data = samples[4]
-            ct6_data = samples[5]
-            v_data = samples[-1]
+        for i in range(0, len(samples.samples_vac)):
+            ct1_data = samples.samples_ct1
+            ct2_data = samples.samples_ct2
+            ct3_data = samples.samples_ct3
+            ct4_data = samples.samples_ct4
+            ct5_data = samples.samples_ct5
+            ct6_data = samples.samples_ct6
+            v_data = samples.samples_vac
             writer.writerow([i, ct1_data[i], ct2_data[i], ct3_data[i], ct4_data[i], ct5_data[i], ct6_data[i], v_data[i]])
     logger.info(f"... CSV written to {filename}.")
 
-def print_results(config, phase: int, results: dict):
+def print_results(config, phase: int, adc, results: dict):
     """Output a Table to the debugging console
 
     Args:
@@ -405,7 +407,7 @@ def print_results(config, phase: int, results: dict):
     t.add_row(['P.F.', round(results[1-1]['PF'], 3), round(results[2-1]['PF'], 3), round(results[3-1]['PF'], 3), round(results[4-1]['PF'], 3), round(results[5-1]['PF'], 3), round(results[6-1]['PF'], 3)])
     t.add_row(['Voltage', round(results[1-1]['Voltage'], 3), '', '', '', '', ''])
     # t.add_row(['Bias_V', round(get_bias_voltage(config, phase, ADC[0])['value'] * CORRECTIONS[phase]['bias'], 3), '', '', '', '', ''])
-    t.add_row(['Bias_V', round(get_bias_voltage2(config, phase, ADC[0])['value'] * CORRECTIONS[phase]['bias'], 3), '', '', '', '', ''])
+    t.add_row(['Bias_V', round(get_bias_voltage2(config, phase, adc)['value'] * config.VOLTMETER[str(phase)].BIAS.FACTOR, 3), '', '', '', '', ''])
     # t.add_row(['Bias_V', round(generate_bias_value(), 3), '', '', '', '', ''])
     s = t.get_string()
     logger.debug('\n' + s)

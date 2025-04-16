@@ -9,3 +9,4 @@ python-box
 influxdb-client
 tomli
 tomli_w
+prettytable

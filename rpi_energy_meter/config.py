@@ -2,6 +2,7 @@ from typing import Dict, Optional, Union
 from pydantic import BaseModel, Field
 from pathlib import Path
 from box import Box
+from datetime import datetime
 import tomli
 import tomli_w
 
@@ -73,7 +74,7 @@ def load_config(path: Union[str, Path]) -> Box:
     with path.open("rb") as f:
         data = tomli.load(f)
     
-    return Box(data, default_box=True, frozen_box=True)
+    return Box(data, default_box=True, frozen_box=False)
 
 def write_config(path: Union[str, Path], config: Box) -> None:
     
@@ -96,6 +97,8 @@ def save_total_kwh(config, measurements):
         for ct in range(config.CTS.get(str(phase + 1)).COUNT):
             if config.get('RESET_UTC') == 0 or \
             float(config.CTS.get(str(phase + 1)).get(str(ct + 1)).KWH) < measurements[phase]._energy[ct]['Total']:
-                config.CTS.get(str(phase + 1)).get(str(ct + 1)).set("RESET_UTC", str(datetime.utcnow()))
+                # config.CTS.get(str(phase + 1)).get(str(ct + 1)).set("RESET_UTC", str(datetime.utcnow()))
+                config.CTS[str(phase+1)][str(ct+1)].RESET_UTC = str(datetime.utcnow())
 
-            config.CTS.get(str(phase + 1)).get(str(ct + 1)).set("KWH", str(measurements[phase]._energy[ct]['Total']))
+            # config.CTS.get(str(phase + 1)).get(str(ct + 1)).set("KWH", float(measurements[phase]._energy[ct]['Total']))
+            config.CTS[str(phase+1)][str(ct+1)].KWH = float(measurements[phase]._energy[ct]['Total'])

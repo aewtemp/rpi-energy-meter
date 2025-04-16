@@ -9,7 +9,7 @@ class MCP3008_2:
         self.device = device
 
     def read(self, channels = '01234567', samples = 200):
-        _data_out = subprocess.run(['./helpers/mcp3008hwspi', '-r', '1250000', '-c', str(channels), '-f', '0', '-n', str(samples), '-b', '1', '-d', str(self.device)], capture_output=True, text=True).stdout
+        _data_out = subprocess.run(['./rpi_energy_meter/helper/mcp3008hwspi', '-r', '1250000', '-c', str(channels), '-f', '0', '-n', str(samples), '-b', '1', '-d', str(self.device)], capture_output=True, text=True).stdout
         _samples = [[0] * 8] * samples
         i = 0
         for line in _data_out.split('\n'):

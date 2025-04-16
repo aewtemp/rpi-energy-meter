@@ -10,10 +10,13 @@ from .samples import *
 from .plotting import *
 from .influxv2_interface import infv2db
 from box import Box
+from textwrap import dedent
 
 from typing import Any, Union
 import argparse
 import logging
+import pickle
+import timeit
 
 class RpiEnergyMeter():
     
@@ -21,20 +24,24 @@ class RpiEnergyMeter():
         self.config = load_config(config)
         self.verbose = verbose
 
-    def run(self, command: Union[Any, None]):
+    def run(self, command: Union[Any, None], **kwargs):
 
         if self.verbose:
             logger.setLevel(logging.DEBUG)
             for handler in logger.handlers:
                 handler.setLevel(logging.DEBUG)
 
-        # from smMCP3008 import MCP3008
+        if command is None:
+            logger.debug("No command provided. Running normal mode")
+            command = ""
+
+        # from rpi_energy_meter.mcp3008 import MCP3008
         # logger.debug(f"... Initializing ADC instances for {self.config.PHASES.COUNT} Phases")
         # ADC = [MCP3008(bus=0, device=i) for i in range(self.config.PHASES.COUNT)]
 
-        # from smMCP3008 import MCP3008_2
-        # logger.debug(f"... Initializing ADC instances for {self.config.PHASES.COUNT} Phases")
-        # ADC = [MCP3008_2(device=i) for i in range(self.config.PHASES.COUNT)]
+        from rpi_energy_meter.mcp3008 import MCP3008_2
+        logger.debug(f"... Initializing ADC instances for {self.config.PHASES.COUNT} Phases")
+        ADC = [MCP3008_2(device=i) for i in range(self.config.PHASES.COUNT)]
 
         logger.debug(f"... Initializing Measurement instances for {self.config.PHASES.COUNT} Phases")
         MEASUREMENTS = [SAMPLES(self.config, i+1, totals=read_total_kwh(self.config)[i]) for i in range(self.config.PHASES.COUNT)]
@@ -44,9 +51,9 @@ class RpiEnergyMeter():
             while True:
                 try:
                     for i in range(self.config.PHASES.COUNT):
-                        # collect_data(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                        # collect_data2(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                        generate_data(self.config, MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES) # Only for testing
+                        # collect_data(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                        collect_data2(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                        # generate_data(self.config, MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES) # Only for testing
                 except KeyboardInterrupt:
                     # for _ in ADC:
                     #     _.close 
@@ -59,8 +66,8 @@ class RpiEnergyMeter():
             for i in range(self.config.PHASES.COUNT):
                 # Time sample collection
                 start = timeit.default_timer()
-                # collect_data(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                collect_data2(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                # collect_data(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                collect_data2(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
                 # generate_data(self.config, MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES) # Only for testing
 
                 stop = timeit.default_timer()
@@ -71,23 +78,32 @@ class RpiEnergyMeter():
 
                 sample_rate = round((sample_count / duration) / 1000, 2)
 
-                logger.debug(f"Finished Collecting Samples for Phase {i}. Sample Rate: {sample_rate} KSPS")
+                logger.debug(f"Finished Collecting Samples for Phase {i+1}. Sample Rate: {sample_rate} KSPS")
+                logger.debug(f"Calculating Values for Phase {i+1}.")
 
-                # Save samples to disk
-                with open('data/samples/last-debug-phase'+str(i)+'.pkl', 'wb') as f:
+                MEASUREMENTS[i].calculate_power()
+
+                logger.debug(f"Writing debug files to disk for Phase {i+1}.")
+                # Save samples with pickle to disk
+                with open('./last-debug-phase'+str(i+1)+'.pkl', 'wb') as f:
                     pickle.dump(MEASUREMENTS[i], f)
 
-                if not title:
-                    title = input("Enter the title for this chart: ")
+                if "title" not in kwargs:
+                    title = ""
 
                 title = title.replace(" ","_")
                 logger.debug("Building plot.")
+                print_results(self.config, i+1, ADC[i], MEASUREMENTS[i].power)
+                dump_data(i+1, MEASUREMENTS[i])
                 plot_data(MEASUREMENTS[i], title + ' Phase ' + str(i+1), sample_rate=sample_rate)
                 ip = get_ip()
             if ip:
                 logger.info(f"Chart created! Visit http://{ip}/{title}.html to view the chart. Or, simply visit http://{ip} to view all the charts created using 'debug' and/or 'calibration' mode.")
             else:
                 logger.info("Chart created! I could not determine the IP address of this machine. Visit your device's IP address in a webrowser to view the list of charts you've created using 'debug' and/or 'calibration' mode.")
+
+            sys.exit()
+
 
         if command.lower() == "calibration":
             # This mode is intended to be used for correcting the phase error in your CT sensors. Please ensure that you have a purely resistive load running through your CT sensors - that means no electric fans and no digital circuitry!
@@ -119,8 +135,8 @@ class RpiEnergyMeter():
                 logger.info("\nCalibration Aborted.\n")
                 sys.exit()
 
-            # collect_data(ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
-            collect_data2(ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
+            # collect_data(self.config, i+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
+            collect_data2(self.config, i+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
             # generate_data(self.config, MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES) # Only for testing
 
             results = MEASUREMENTS[phase_selection].calculate_power()
@@ -135,8 +151,8 @@ class RpiEnergyMeter():
                     Press ENTER to continue when you've reversed your CT.'''))
                 input("[ENTER]")
                 # Check to make sure the CT was reversed properly by taking another batch of samples/calculations:
-                # collect_data(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                collect_data2(self.config, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                # collect_data(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                collect_data2(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
                 # generate_data(self.config, MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)  # Only for testing
                 results = MEASUREMENTS[phase_selection].calculate_power()
                 pf = results[ct_selection]['PF']
@@ -160,7 +176,7 @@ class RpiEnergyMeter():
             report_title = f'CT{ct_num}-phase-correction-result'
             plot_data(MEASUREMENTS[phase_selection].samples, report_title, ct_selection, old_wave)
             logger.info(f"file written to {report_title}.html")
-
+            sys.exit()
 
         # Normal mode from here
         logger.debug(f"Initializing InfluxDBv2 instance")
@@ -178,7 +194,7 @@ class RpiEnergyMeter():
         
         # The following empty dictionaries will hold the respective calculated values at the end of each polling cycle, which are then averaged prior to storing the value to the DB.
         rms_voltages = [[] for _ in range(self.config.PHASES.COUNT)]
-        ct_currents = [[dict(power=[], pf=[], current=[]) for ct in range(self.config.CTS.get(str(phase+1)).COUNT)] for phase in range(self.config.PHASES.COUNT)]
+        ct_currents = [[dict(power=[], pf=[], current=[]) for ct in range(6)] for phase in range(self.config.PHASES.COUNT)]
         averages = [0 for _ in range(self.config.PHASES.COUNT)]  # Counter for aggregate function
         time_energy = [0.00 for _ in range(self.config.PHASES.COUNT)]
         timestamp = [0 for _ in range(self.config.PHASES.COUNT)]
@@ -197,8 +213,8 @@ class RpiEnergyMeter():
 
                     # Average 5 readings before sending to db (0 to 4)
                     if averages[phase] < 5:
-                        # collect_data(ADC[phase], MEASUREMENTS[phase], self.config.GENERAL.ADC_SAMPLES)
-                        collect_data2(ADC[phase], MEASUREMENTS[phase], self.config.GENERAL.ADC_SAMPLES)
+                        # collect_data(self.config, phase+1, ADC[phase], MEASUREMENTS[phase], self.config.GENERAL.ADC_SAMPLES)
+                        collect_data2(self.config, phase+1, ADC[phase], MEASUREMENTS[phase], self.config.GENERAL.ADC_SAMPLES)
                         # generate_data(self.config, MEASUREMENTS[phase], self.config.GENERAL.ADC_SAMPLES) # Only for testing
 
                         for y in range(self.config.CTS.get(str(phase+1)).COUNT):
@@ -225,7 +241,6 @@ class RpiEnergyMeter():
                             points.append(to_point(phase+1, ct_currents[phase][ct], averages[phase], "current_" + str(ct+1), timestamp[phase]))
 
                         DB.write(points)
-                        save_total_kwh(MEASUREMENTS)
 
                         #  Reset instances to empty
                         rms_voltages[phase] = []
@@ -233,13 +248,14 @@ class RpiEnergyMeter():
                         averages[phase] = 0
 
                         if logger.level == logging.DEBUG:
-                            print_results(config, phase+1, MEASUREMENTS[phase].power)
+                            print_results(self.config, phase+1, ADC[phase], MEASUREMENTS[phase].power)
 
                 if averages[2] == 5:
                     round_took = time.time() - round_start
                     logger.info(f"Stopped the Round. Took {round_took} seconds to do the Round :)")
-                    with open('data/kwh.ini', 'w') as configfile:
-                        config.write(configfile)
+                    save_total_kwh(self.config, MEASUREMENTS)
+                    # with open('data/kwh.ini', 'w') as configfile:
+                    #     config.write(configfile)
 
 
             except KeyboardInterrupt:
