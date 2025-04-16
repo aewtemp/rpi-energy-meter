@@ -1,0 +1,11 @@
+statsmodel
+spidev
+pydantic
+pandas
+numpy
+scipy
+plotly
+python-box
+influxdb-client
+tomli
+tomli_w
