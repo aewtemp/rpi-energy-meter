@@ -1,6 +1,6 @@
 import argparse
 import os
-from energy_meter import RpiEnergyMeter
+from rpi_energy_meter.energy_meter import RpiEnergyMeter
 
 def main():
     """
@@ -34,12 +34,7 @@ def main():
         default=False,
     )
 
-    parser.add_argument("command", help="Which mode to run")
-    parser.add_argument(
-        "arguments",
-        nargs=argparse.REMAINDER,
-        help="Additional arguments for the selected mode/module",
-    )
+    parser.add_argument("command", help="Which mode to run", nargs="?", default=None)
     args = parser.parse_args()
 
     # then run the RpiEnergyMeter
@@ -58,7 +53,7 @@ def main():
         # result = unittest.TextTestRunner(verbosity=2).run(tests)
     else:
         em = RpiEnergyMeter(args.config, args.verbose)
-        em.main(args.command, args.Arguments)
+        em.run(args.command)
 
 
 if __name__ == "__main__":

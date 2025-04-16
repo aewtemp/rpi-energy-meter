@@ -10,41 +10,41 @@ from scipy import signal
 from scipy.signal import hilbert
 
 from statsmodels.tsa.stattools import ccf
+from box import Box
 
-from config import *
 
 class SAMPLES():
-    def __init__(self, sample_count, corrections, timeshifts, totals):
+    def __init__(self, config: Box, phase: int, totals):
         self._samples = {
-            't': numpy.array([0.00]*sample_count),
-            'vac': numpy.array([0.00]*sample_count),
-            'ct1': numpy.array([0.00]*sample_count),
-            'ct2': numpy.array([0.00]*sample_count),
-            'ct3': numpy.array([0.00]*sample_count),
-            'ct4': numpy.array([0.00]*sample_count),
-            'ct5': numpy.array([0.00]*sample_count),
-            'ct6': numpy.array([0.00]*sample_count),
-            'bias': numpy.array([0.00]*sample_count),
+            't': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'vac': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct1': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct2': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct3': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct4': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct5': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'ct6': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            'bias': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
             }
 
         self._correction_factors = {
-            'vac': corrections['vac'],
-            'ct1': corrections['ct1'],
-            'ct2': corrections['ct2'],
-            'ct3': corrections['ct3'],
-            'ct4': corrections['ct4'],
-            'ct5': corrections['ct5'],
-            'ct6': corrections['ct6'],
-            'bias': corrections['bias'],
+            'vac': config.VOLTMETER.get(str(phase)).VAC.FACTOR,
+            'ct1': config.CTS.get(str(phase))["1"].FACTOR,
+            'ct2': config.CTS.get(str(phase))["2"].FACTOR,
+            'ct3': config.CTS.get(str(phase))["3"].FACTOR,
+            'ct4': config.CTS.get(str(phase))["4"].FACTOR,
+            'ct5': config.CTS.get(str(phase))["5"].FACTOR,
+            'ct6': config.CTS.get(str(phase))["6"].FACTOR,
+            'bias': config.VOLTMETER.get(str(phase)).BIAS.FACTOR,
         }
 
         self._phaseshifts = {
-            'ct1': timeshifts['ct1'],
-            'ct2': timeshifts['ct2'],
-            'ct3': timeshifts['ct3'],
-            'ct4': timeshifts['ct4'],
-            'ct5': timeshifts['ct5'],
-            'ct6': timeshifts['ct6'],
+            'ct1': config.CTS.get(str(phase))["1"].SHIFT,
+            'ct2': config.CTS.get(str(phase))["2"].SHIFT,
+            'ct3': config.CTS.get(str(phase))["3"].SHIFT,
+            'ct4': config.CTS.get(str(phase))["4"].SHIFT,
+            'ct5': config.CTS.get(str(phase))["5"].SHIFT,
+            'ct6': config.CTS.get(str(phase))["6"].SHIFT,
         }
 
         self._power = [
