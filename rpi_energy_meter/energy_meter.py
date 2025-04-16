@@ -257,8 +257,6 @@ class RpiEnergyMeter():
                     logger.info(f"Stopped the Round. Took {round_took} seconds to do the Round :)")
                     save_total_kwh(self.config, MEASUREMENTS)
                     write_config("config.toml", self.config)
-                    # with open('data/kwh.ini', 'w') as configfile:
-                    #     config.write(configfile)
 
 
             except KeyboardInterrupt:
