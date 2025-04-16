@@ -138,13 +138,16 @@ def collect_data(config, phase, adc, measurements, numSamples) -> None:
         ct5_data[i] = (ct5_data[i] - bias_data)
         ct6_data[i] = (ct6_data[i] - bias_data)
 
-    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER) )
-    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    adc_factor_ct = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
+
+    ct1_data *= adc_factor_ct
+    ct2_data *= adc_factor_ct
+    ct3_data *= adc_factor_ct
+    v_data *= adc_factor_vac
+    ct4_data *= adc_factor_ct
+    ct5_data *= adc_factor_ct
+    ct6_data *= adc_factor_ct
 
 
     # Fill given instance with data
@@ -203,13 +206,16 @@ def collect_data2(config, phase, adc, measurements, numSamples) -> None:
     logger.debug(f"... that evaluates to {8 * numSamples / took} samples / second")
     logger.debug(f"... that evaluates to {8 * numSamples / took / 1000} samples / milli second")
 
-    ct1_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct2_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct3_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    v_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
-    ct4_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct5_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    ct6_data *= (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    adc_factor_ct = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
+    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
+
+    ct1_data *= adc_factor_ct
+    ct2_data *= adc_factor_ct
+    ct3_data *= adc_factor_ct
+    v_data *= adc_factor_vac
+    ct4_data *= adc_factor_ct
+    ct5_data *= adc_factor_ct
+    ct6_data *= adc_factor_ct
 
 
     # Fill given instance with data
