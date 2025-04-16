@@ -89,7 +89,9 @@ class RpiEnergyMeter():
                     pickle.dump(MEASUREMENTS[i], f)
 
                 if "title" not in kwargs:
-                    title = ""
+                    title = f"Phase_{i+1}"
+                else
+                    title = f"{title} Phase_{str(i+1)}"
 
                 title = title.replace(" ","_")
                 logger.debug("Building plot.")
