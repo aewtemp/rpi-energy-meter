@@ -2,8 +2,8 @@
 # Using a multimeter, measure the voltage of the voltage Reference on the chips ( PIN 15 vs. PIN 14 )
 VREF = 3.297
 
-# ADC Resolution in 2^Bits
-ADC_RESOLUTION = 2**10
+# ADC Resolution in 2^B its
+ADC_RESOLUTION = 1024
 # ADC Samplerate in Samples per second, taken out of debug mode
 ADC_SAMPLERATE = 3250
 # ADC samples to take
@@ -22,7 +22,7 @@ COUNT = 3
 # Grid supply frequency in hertz
 FREQUENCY = 50.00
 # Ratio of the voltage divider after the 9V AC transformer. You'll likely get this info from the Board design
-TRANSFORMER_VDIVIDER = 1/11
+TRANSFORMER_VDIVIDER = 11
 
 [PHASES.1]
 # Using a multimeter, measure the voltage of the receptacle where your 9V AC transformer will plug into. Enter the measured value below.
@@ -40,133 +40,217 @@ VOLTAGE = 238.50
 # Using a multimeter, measure the output voltage of your AC transformer. Using the value on the label is not ideal and will lead to greater accuracy in the calculations.
 TRANSFORMER_OUTPUT_VOLTAGE = 12.08
 
+[VOLTMETER]
+[VOLTMETER.1]
+BIAS.CHANNEL = 4
+BIAS.FACTOR = 1.002
+VAC.CHANNEL = 3
+VAC.FACTOR = 1.012
+
+[VOLTMETER.2]
+BIAS.CHANNEL = 4
+BIAS.FACTOR = 1.002
+VAC.CHANNEL = 3
+VAC.FACTOR = 1.012
+
+[VOLTMETER.3]
+BIAS.CHANNEL = 4
+BIAS.FACTOR = 1.002
+VAC.CHANNEL = 3
+VAC.FACTOR = 1.012
+
+
 [CTS]
 BURDEN_RESISTANCE = 22.00
+WINDING_RATIO = 1000
+
+[CTS.1]
+COUNT = 6
 
 [CTS.1.1]
+CHANNEL = 0
 DESCRIPTION = "Phase 1 Inlet"
 TYPE = "mains"
 SHIFT = 0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.1.2]
+CHANNEL = 1
 DESCRIPTION = "Kitchen Oven 1"
 TYPE = "consumption"
 SHIFT = 0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.1.3]
+CHANNEL = 2
 DESCRIPTION = "Water Boiler 1"
 TYPE = "consumption"
 SHIFT = 0.137
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.1.4]
+CHANNEL = 5
 DESCRIPTION = "Cellar"
 TYPE = "consumption"
 SHIFT = -0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.1.5]
+CHANNEL = 6
 DESCRIPTION = "Bedroom Parents"
 TYPE = "consumption"
 SHIFT = -0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.1.6]
+CHANNEL = 7
 DESCRIPTION = "Solar Power 1"
 TYPE = "production"
 SHIFT = -0.170
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
+
+[CTS.2]
+COUNT = 6
 
 [CTS.2.1]
+CHANNEL = 0
 DESCRIPTION = "Phase 2 Inlet"
 TYPE = "mains"
 SHIFT = 0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.2.2]
+CHANNEL = 1
 DESCRIPTION = "Kitchen Oven 2"
 TYPE = "consumption"
 SHIFT = 0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.2.3]
+CHANNEL = 2
 DESCRIPTION = "Water Boiler 2"
 TYPE = "consumption"
 SHIFT = 0.137
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.2.4]
+CHANNEL = 5
 DESCRIPTION = "Bedroom Child 1"
 TYPE = "consumption"
 SHIFT = -0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.2.5]
+CHANNEL = 6
 DESCRIPTION = "Bathroom"
 TYPE = "consumption"
 SHIFT = -0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.2.6]
+CHANNEL = 7
 DESCRIPTION = "Solar Power 2"
 TYPE = "production"
 SHIFT = -0.170
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
+
+[CTS.3]
+COUNT = 6
 
 [CTS.3.1]
+CHANNEL = 0
 DESCRIPTION = "Phase 3 Inlet"
 TYPE = "mains"
 SHIFT = 0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.3.2]
+CHANNEL = 1
 DESCRIPTION = "Kitchen Oven 3"
 TYPE = "consumption"
 SHIFT = 0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.3.3]
+CHANNEL = 2
 DESCRIPTION = "Water Boiler 3"
 TYPE = "consumption"
 SHIFT = 0.137
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.3.4]
+CHANNEL = 5
 DESCRIPTION = "Garage"
 TYPE = "consumption"
 SHIFT = -0.148
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.3.5]
+CHANNEL = 6
 DESCRIPTION = "Hallway"
 TYPE = "consumption"
 SHIFT = -0.159
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
 
 [CTS.3.6]
+CHANNEL = 7
 DESCRIPTION = "Solar Power 3"
 TYPE = "production"
 SHIFT = -0.170
 FACTOR = 0.9950
 CUTOFF = 0.026
+KWH = 0.000
+RESET_UTC = 0
