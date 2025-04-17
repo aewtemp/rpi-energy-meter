@@ -6,7 +6,7 @@ from pathlib import Path
 from spidev import SpiDev
 
 base_path = Path(__file__).parent.resolve()
-exec_path = base_path / 'rpi_energy_meter' / 'helper' / 'mcp3008hwspi'
+exec_path = base_path / 'helper' / 'mcp3008hwspi'
 
 class MCP3008_2:
     def __init__(self, device = 0):
