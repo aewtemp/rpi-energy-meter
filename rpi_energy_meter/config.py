@@ -95,8 +95,8 @@ def read_total_kwh(config) -> list:
 def save_total_kwh(config, measurements):
     for phase in range(config.PHASES.COUNT):
         for ct in range(config.CTS.get(str(phase + 1)).COUNT):
-            if config.get('RESET_UTC') == 0 or \
-            float(config.CTS.get(str(phase + 1)).get(str(ct + 1)).KWH) < measurements[phase]._energy[ct]['Total']:
+            if config.CTS.get(str(phase + 1)).get(str(ct + 1)).get('RESET_UTC') == 0 or \
+            float(config.CTS.get(str(phase + 1)).get(str(ct + 1)).KWH) > measurements[phase]._energy[ct]['Total']:
                 # config.CTS.get(str(phase + 1)).get(str(ct + 1)).set("RESET_UTC", str(datetime.utcnow()))
                 config.CTS[str(phase+1)][str(ct+1)].RESET_UTC = str(datetime.utcnow())
 
