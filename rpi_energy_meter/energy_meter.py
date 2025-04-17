@@ -81,7 +81,7 @@ class RpiEnergyMeter():
                 logger.debug(f"Finished Collecting Samples for Phase {i+1}. Sample Rate: {sample_rate} KSPS")
                 logger.debug(f"Calculating Values for Phase {i+1}.")
 
-                MEASUREMENTS[i].calculate_power()
+                MEASUREMENTS[i].calculate_power(i+1, self.config)
 
                 logger.debug(f"Writing debug files to disk for Phase {i+1}.")
                 # Save samples with pickle to disk
@@ -97,7 +97,7 @@ class RpiEnergyMeter():
                 logger.debug("Building plot.")
                 print_results(self.config, i+1, ADC[i], MEASUREMENTS[i].power)
                 dump_data(i+1, MEASUREMENTS[i])
-                plot_data(MEASUREMENTS[i], title + ' Phase ' + str(i+1), sample_rate=sample_rate)
+                plot_data(MEASUREMENTS[i], title, sample_rate=sample_rate)
                 ip = get_ip()
             if ip:
                 logger.info(f"Chart created! Visit http://{ip}/{title}.html to view the chart. Or, simply visit http://{ip} to view all the charts created using 'debug' and/or 'calibration' mode.")
@@ -137,11 +137,11 @@ class RpiEnergyMeter():
                 logger.info("\nCalibration Aborted.\n")
                 sys.exit()
 
-            # collect_data(self.config, i+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
-            collect_data2(self.config, i+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
+            # collect_data(self.config, phase_selection+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
+            collect_data2(self.config, phase_selection+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
             # generate_data(self.config, MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES) # Only for testing
 
-            results = MEASUREMENTS[phase_selection].calculate_power()
+            results = MEASUREMENTS[phase_selection].calculate_power(phase_selection+1, self.config)
 
             # Get the current power factor and check to make sure it is not negative. If it is, the CT is installed opposite to how it should be.
             pf = results[ct_selection]['PF']
@@ -153,10 +153,10 @@ class RpiEnergyMeter():
                     Press ENTER to continue when you've reversed your CT.'''))
                 input("[ENTER]")
                 # Check to make sure the CT was reversed properly by taking another batch of samples/calculations:
-                # collect_data(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                collect_data2(self.config, i+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                # collect_data(self.config, phase_selection+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                collect_data2(self.config, phase_selection+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
                 # generate_data(self.config, MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)  # Only for testing
-                results = MEASUREMENTS[phase_selection].calculate_power()
+                results = MEASUREMENTS[phase_selection].calculate_power(phase_selection+1, self.config)
                 pf = results[ct_selection]['PF']
                 if pf < 0:
                     logger.info(dedent("""It still looks like the current transformer is installed backwards.  Are you sure this is a resistive load?\n
@@ -221,7 +221,7 @@ class RpiEnergyMeter():
 
                         for y in range(self.config.CTS.get(str(phase+1)).COUNT):
                             MEASUREMENTS[phase].shift_phase(ct=y)
-                        results = MEASUREMENTS[phase].calculate_power()
+                        results = MEASUREMENTS[phase].calculate_power(phase+1, self.config)
 
                         rms_voltages[phase].append(results[0]['Voltage'])
                         for ct in range(self.config.CTS.get(str(phase+1)).COUNT):
