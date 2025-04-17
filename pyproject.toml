@@ -1,3 +1,46 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rpi-energy-meter"
+description = "Measures current power and energy metrics in real time"
+authors = [
+    { name = "chatgpt" },
+    { name = "Alexander Temp", email = "alex@aewtemp.de" }
+]
+requires-python = ">=3.8"
+keywords = ["raspberry pi", "energy", "power measurement", "mcp3008", "spi"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: System :: Monitoring",
+    "Intended Audience :: Developers"
+]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = { text = "MIT" }
+dynamic = ["version", "dependencies"]
+
+[project.scripts]
+rpi-energy-meter = "rpi_energy_meter.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/aewtemp/rpi-energy-meter"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rpi_energy_meter*"]
+
+[tool.setuptools.package-data]
+rpi_energy_meter = ["helper/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "rpi_energy_meter.__init__.__version__"}
+dependencies = {file = ["requirements.txt"]}
+
+
+
 [tool.black]
 line-length = 120
 target-version = ["py38"]
