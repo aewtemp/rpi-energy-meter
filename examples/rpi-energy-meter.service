@@ -6,8 +6,9 @@ After=multi-user.target
 Type=simple
 Restart=always
 KillSignal=SIGINT
-WorkingDirectory=/run/rpi-energy-meter
-ExecStart=/usr/bin/rpi-energy-meter
+# WorkingDirectory=/run/rpi-energy-meter
+WorkingDirectory=/home/rpi/rpi-energy-meter
+ExecStart=/home/rpi/rpi-energy-meter/.venv/bin/python /home/rpi/rpi-energy-meter/.venv/bin/rpi-energy-meter -c config.toml
 
 [Install]
 WantedBy=multi-user.target
