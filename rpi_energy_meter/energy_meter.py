@@ -261,7 +261,7 @@ class RpiEnergyMeter():
 
             except KeyboardInterrupt:
                 DB.close()
-                save_total_kwh(MEASUREMENTS)
+                save_total_kwh(self.config, MEASUREMENTS)
                 write_config("config.toml", self.config)
                 # for _ in ADC:
                 #     _.close 
