@@ -90,7 +90,7 @@ class RpiEnergyMeter():
 
                 if "title" not in kwargs:
                     title = f"Phase_{i+1}"
-                else
+                else:
                     title = f"{title} Phase_{str(i+1)}"
 
                 title = title.replace(" ","_")

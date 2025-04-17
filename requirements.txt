@@ -1,4 +1,4 @@
-statsmodel
+statsmodels
 spidev
 pydantic
 pandas
