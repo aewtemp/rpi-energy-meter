@@ -60,3 +60,6 @@ venv.bak/
 
 # pytype static type analyzer
 .pytype/
+
+# KiCad Backups
+*-backups/
