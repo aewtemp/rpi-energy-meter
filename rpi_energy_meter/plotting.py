@@ -24,7 +24,7 @@ def plot_data(samples, title, ct_selection=None, old_wave=None, sample_rate=None
         ct_old = numpy.array(old_wave['ct' + str(ct_selection+1)])
         ct = numpy.array(samples['ct' + str(ct_selection+1)])
         voltage = numpy.array(samples['vac'])
-        x = [x for x in range(1, len(voltage))]
+        x = list(range(len(voltage)))
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(go.Scatter(x=x, y=ct_old, mode='lines', name=str(ct_selection+1).upper()), secondary_y=False)
         fig.add_trace(go.Scatter(x=x, y=ct, mode='lines', name=f'Phase corrected ct wave ({str(ct_selection+1).upper()})'), secondary_y=False)    
@@ -39,7 +39,7 @@ def plot_data(samples, title, ct_selection=None, old_wave=None, sample_rate=None
         ct5 = numpy.array(samples.samples_ct5)
         ct6 = numpy.array(samples.samples_ct6)
         voltage = numpy.array(samples.samples_vac)
-        x = [x for x in range(1, len(voltage))]
+        x = list(range(len(voltage)))
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(go.Scatter(x=x, y=ct1, mode='lines', name='ct1'), secondary_y=False)

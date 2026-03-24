@@ -6,25 +6,22 @@ import numpy
 import cmath
 
 from math import sqrt
-from scipy import signal
 from scipy.signal import hilbert
-
-from statsmodels.tsa.stattools import ccf
 from box import Box
 
 
 class SAMPLES():
     def __init__(self, config: Box, phase: int, totals):
         self._samples = {
-            't': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'vac': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct1': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct2': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct3': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct4': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct5': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'ct6': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
-            'bias': numpy.array([0.00]*config.GENERAL.ADC_SAMPLES),
+            't': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'vac': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct1': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct2': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct3': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct4': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct5': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'ct6': numpy.zeros(config.GENERAL.ADC_SAMPLES),
+            'bias': numpy.zeros(config.GENERAL.ADC_SAMPLES),
             }
 
         self._correction_factors = {
@@ -58,8 +55,8 @@ class SAMPLES():
 
         self._energy = [
             {
-                'Total': float(totals[0]['Total']),
-            } for _ in range(6)
+                'Total': float(totals[i]['Total']),
+            } for i in range(6)
         ]
 
 
@@ -96,56 +93,56 @@ class SAMPLES():
         return self._samples['vac']
     @samples_vac.setter
     def samples_vac(self, value):
-        self._samples['vac'] = numpy.array(value) * self._correction_factors['vac']
+        self._samples['vac'] = numpy.asarray(value) * self._correction_factors['vac']
 
     @property
     def samples_ct1(self):
         return self._samples['ct1']
     @samples_ct1.setter
     def samples_ct1(self, value):
-        self._samples['ct1'] = numpy.array(value) * self._correction_factors['ct1']
+        self._samples['ct1'] = numpy.asarray(value) * self._correction_factors['ct1']
 
     @property
     def samples_ct2(self):
         return self._samples['ct2']
     @samples_ct2.setter
     def samples_ct2(self, value):
-        self._samples['ct2'] = numpy.array(value) * self._correction_factors['ct2']
+        self._samples['ct2'] = numpy.asarray(value) * self._correction_factors['ct2']
 
     @property
     def samples_ct3(self):
         return self._samples['ct3']
     @samples_ct3.setter
     def samples_ct3(self, value):
-        self._samples['ct3'] = numpy.array(value) * self._correction_factors['ct3']
+        self._samples['ct3'] = numpy.asarray(value) * self._correction_factors['ct3']
 
     @property
     def samples_ct4(self):
         return self._samples['ct4']
     @samples_ct4.setter
     def samples_ct4(self, value):
-        self._samples['ct4'] = numpy.array(value) * self._correction_factors['ct4']
+        self._samples['ct4'] = numpy.asarray(value) * self._correction_factors['ct4']
 
     @property
     def samples_ct5(self):
         return self._samples['ct5']
     @samples_ct5.setter
     def samples_ct5(self, value):
-        self._samples['ct5'] = numpy.array(value) * self._correction_factors['ct5']
+        self._samples['ct5'] = numpy.asarray(value) * self._correction_factors['ct5']
 
     @property
     def samples_ct6(self):
         return self._samples['ct6']
     @samples_ct6.setter
     def samples_ct6(self, value):
-        self._samples['ct6'] = numpy.array(value) * self._correction_factors['ct6']
+        self._samples['ct6'] = numpy.asarray(value) * self._correction_factors['ct6']
 
     @property
     def samples_bias(self):
         return self._samples['bias']
     @samples_bias.setter
     def samples_bias(self, value):
-        self._samples['bias'] = numpy.array(value) * self._correction_factors['bias']
+        self._samples['bias'] = numpy.asarray(value) * self._correction_factors['bias']
 
     @property
     def power(self):
@@ -207,33 +204,13 @@ class SAMPLES():
         for i in range(len(self._power)):
             samples_ct = self.samples['ct' + str(i+1)]
 
-            sum_raw_voltage = 0.00
-            sum_squared_voltage = 0.00
-            sum_raw_current = 0.00
-            sum_squared_current = 0.00
-            sum_inst_power = 0.00
-
             num_samples = len(samples_v)
-            for y in range(0, num_samples):
-                voltage = samples_v[y]
-                current = samples_ct[y]
 
-                # Process all data in a single function to reduce runtime complexity
-                # Get the sum of all current samples individually
-                sum_raw_voltage += voltage
-                sum_raw_current += current
-
-                # Squared voltage
-                squared_voltage = voltage ** 2
-                sum_squared_voltage += squared_voltage
-
-                # Squared current
-                squared_current = current ** 2
-                sum_squared_current += squared_current
-
-                # Calculate instant power for each ct sensor
-                inst_power = voltage * current
-                sum_inst_power += inst_power
+            sum_raw_voltage = numpy.sum(samples_v)
+            sum_raw_current = numpy.sum(samples_ct)
+            sum_squared_voltage = numpy.sum(samples_v ** 2)
+            sum_squared_current = numpy.sum(samples_ct ** 2)
+            sum_inst_power = numpy.sum(samples_v * samples_ct)
 
 
             avg_raw_voltage = (sum_raw_voltage / num_samples)

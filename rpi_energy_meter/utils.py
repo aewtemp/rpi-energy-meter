@@ -12,7 +12,7 @@ import csv
 from datetime import datetime
 from influxdb_client import Point
 from socket import getfqdn
-from cmath import sqrt
+from math import sqrt
 from time import sleep
 from socket import socket, AF_INET, SOCK_DGRAM
 from prettytable import PrettyTable
@@ -95,15 +95,15 @@ def collect_data(config, phase, adc, measurements, numSamples) -> None:
     """
 
     # Initialize variables
-    ct1_data = numpy.array([0.00]*numSamples)
-    ct2_data = numpy.array([0.00]*numSamples)
-    ct3_data = numpy.array([0.00]*numSamples)
-    v_data   = numpy.array([0.00]*numSamples)
-    ct4_data = numpy.array([0.00]*numSamples)
-    ct5_data = numpy.array([0.00]*numSamples)
-    ct6_data = numpy.array([0.00]*numSamples)
+    ct1_data = numpy.zeros(numSamples)
+    ct2_data = numpy.zeros(numSamples)
+    ct3_data = numpy.zeros(numSamples)
+    v_data   = numpy.zeros(numSamples)
+    ct4_data = numpy.zeros(numSamples)
+    ct5_data = numpy.zeros(numSamples)
+    ct6_data = numpy.zeros(numSamples)
 
-    t = numpy.array([0.00]*numSamples)
+    t = numpy.zeros(numSamples)
 
     # Get time of reading for execution time
     time_start = time.time()
@@ -129,17 +129,16 @@ def collect_data(config, phase, adc, measurements, numSamples) -> None:
     logger.debug(f"... that evaluates to {9 * numSamples / took / 1000} samples / milli second")
 
     # Calculate the shit out of that electricity
-    for i in range(numSamples):
-        ct1_data[i] = (ct1_data[i] - bias_data)
-        ct2_data[i] = (ct2_data[i] - bias_data)
-        ct3_data[i] = (ct3_data[i] - bias_data)
-        v_data[i] = (v_data[i] - bias_data)
-        ct4_data[i] = (ct4_data[i] - bias_data)
-        ct5_data[i] = (ct5_data[i] - bias_data)
-        ct6_data[i] = (ct6_data[i] - bias_data)
+    ct1_data -= bias_data
+    ct2_data -= bias_data
+    ct3_data -= bias_data
+    v_data   -= bias_data
+    ct4_data -= bias_data
+    ct5_data -= bias_data
+    ct6_data -= bias_data
 
     adc_factor_ct = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
+    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES[str(phase)].VOLTAGE / (config.PHASES[str(phase)].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
 
     ct1_data *= adc_factor_ct
     ct2_data *= adc_factor_ct
@@ -172,15 +171,15 @@ def collect_data2(config, phase, adc, measurements, numSamples) -> None:
     """
 
     # Initialize variables
-    ct1_data = numpy.array([0.00]*numSamples)
-    ct2_data = numpy.array([0.00]*numSamples)
-    ct3_data = numpy.array([0.00]*numSamples)
-    v_data   = numpy.array([0.00]*numSamples)
-    ct4_data = numpy.array([0.00]*numSamples)
-    ct5_data = numpy.array([0.00]*numSamples)
-    ct6_data = numpy.array([0.00]*numSamples)
+    ct1_data = numpy.zeros(numSamples)
+    ct2_data = numpy.zeros(numSamples)
+    ct3_data = numpy.zeros(numSamples)
+    v_data   = numpy.zeros(numSamples)
+    ct4_data = numpy.zeros(numSamples)
+    ct5_data = numpy.zeros(numSamples)
+    ct6_data = numpy.zeros(numSamples)
 
-    t = numpy.array([0.00]*numSamples)
+    t = numpy.zeros(numSamples)
 
     # Get time of reading for execution time
     time_start = time.time()
@@ -207,7 +206,7 @@ def collect_data2(config, phase, adc, measurements, numSamples) -> None:
     logger.debug(f"... that evaluates to {8 * numSamples / took / 1000} samples / milli second")
 
     adc_factor_ct = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) / (config.CTS.BURDEN_RESISTANCE / config.CTS.WINDING_RATIO)
-    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES["1"].VOLTAGE / (config.PHASES["1"].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
+    adc_factor_vac = (config.GENERAL.VREF / config.GENERAL.ADC_RESOLUTION) * (config.PHASES[str(phase)].VOLTAGE / (config.PHASES[str(phase)].TRANSFORMER_OUTPUT_VOLTAGE / config.PHASES.TRANSFORMER_VDIVIDER))
 
     ct1_data *= adc_factor_ct
     ct2_data *= adc_factor_ct
@@ -266,32 +265,32 @@ def generate_data(config, measurements, numSamples,
     amp_ct5 = (current_ct5 * sqrt(2))
     amp_ct6 = (current_ct6 * sqrt(2))
 
-    ct1_data = numpy.array([0.00]*numSamples)
-    ct2_data = numpy.array([0.00]*numSamples)
-    ct3_data = numpy.array([0.00]*numSamples)
-    v_data   = numpy.array([0.00]*numSamples)
-    t        = numpy.array([0.00]*numSamples)
-    ct4_data = numpy.array([0.00]*numSamples)
-    ct5_data = numpy.array([0.00]*numSamples)
-    ct6_data = numpy.array([0.00]*numSamples)
+    ct1_data = numpy.zeros(numSamples)
+    ct2_data = numpy.zeros(numSamples)
+    ct3_data = numpy.zeros(numSamples)
+    v_data   = numpy.zeros(numSamples)
+    t_wall   = numpy.zeros(numSamples)
+    ct4_data = numpy.zeros(numSamples)
+    ct5_data = numpy.zeros(numSamples)
+    ct6_data = numpy.zeros(numSamples)
 
     # Get time of reading for execution time
     time_start = time.time()
 
-    ct1 = amp_ct1.real * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.45)
-    ct2 = amp_ct2.real * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.30)
-    ct3 = amp_ct3.real * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.15)
-    v = amp_v.real * numpy.sin(2 * numpy.pi * sine_frequency * t + 0)
-    ct4 = amp_ct4.real * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.30)
-    ct5 = amp_ct5.real * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.45)
-    ct6 = amp_ct6.real * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.60)
+    ct1 = amp_ct1 * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.45)
+    ct2 = amp_ct2 * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.30)
+    ct3 = amp_ct3 * numpy.sin(2 * numpy.pi * sine_frequency * t + 0.15)
+    v = amp_v * numpy.sin(2 * numpy.pi * sine_frequency * t + 0)
+    ct4 = amp_ct4 * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.30)
+    ct5 = amp_ct5 * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.45)
+    ct6 = amp_ct6 * numpy.sin(2 * numpy.pi * sine_frequency * t - 0.60)
 
     # Start the gathering
     for i in range(numSamples):
         ct1_data[i] = ct1[i]
         ct2_data[i] = ct2[i]
         ct3_data[i] = ct3[i]
-        t[i]        = time.time()
+        t_wall[i]   = time.time()
         v_data[i]   = v[i]
         ct4_data[i] = ct4[i]
         ct5_data[i] = ct5[i]
@@ -308,7 +307,7 @@ def generate_data(config, measurements, numSamples,
     measurements.samples_ct2 = ct2_data
     measurements.samples_ct3 = ct3_data
     measurements.samples_vac = v_data
-    measurements.t = t
+    measurements.t = t_wall
     measurements.samples_ct4 = ct4_data
     measurements.samples_ct5 = ct5_data
     measurements.samples_ct6 = ct6_data
@@ -329,12 +328,12 @@ def to_point(phase: int, measurements: dict, amount: int, name: str, time: int):
 
     """
     
-    _measurements = measurements
+    _measurements = dict(measurements) if type(measurements) is dict else measurements
     _point = object()
     if amount > 1:
         if type(_measurements) is dict:
-            for key, value in measurements.items():
-                _measurements[key] = sum(_measurements[key]) / amount
+            for key, value in _measurements.items():
+                _measurements[key] = sum(value) / amount
         else:
                 _measurements = sum(_measurements) / amount
 

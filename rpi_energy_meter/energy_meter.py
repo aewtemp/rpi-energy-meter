@@ -91,7 +91,7 @@ class RpiEnergyMeter():
                 if "title" not in kwargs:
                     title = f"Phase_{i+1}"
                 else:
-                    title = f"{title} Phase_{str(i+1)}"
+                    title = f"{kwargs['title']} Phase_{str(i+1)}"
 
                 title = title.replace(" ","_")
                 logger.debug("Building plot.")
@@ -154,7 +154,7 @@ class RpiEnergyMeter():
                 input("[ENTER]")
                 # Check to make sure the CT was reversed properly by taking another batch of samples/calculations:
                 # collect_data(self.config, phase_selection+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
-                collect_data2(self.config, phase_selection+1, ADC[i], MEASUREMENTS[i], self.config.GENERAL.ADC_SAMPLES)
+                collect_data2(self.config, phase_selection+1, ADC[phase_selection], MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)
                 # generate_data(self.config, MEASUREMENTS[phase_selection], self.config.GENERAL.ADC_SAMPLES)  # Only for testing
                 results = MEASUREMENTS[phase_selection].calculate_power(phase_selection+1, self.config)
                 pf = results[ct_selection]['PF']
@@ -252,7 +252,7 @@ class RpiEnergyMeter():
                         if logger.level == logging.DEBUG:
                             print_results(self.config, phase+1, ADC[phase], MEASUREMENTS[phase].power)
 
-                if averages[2] == 5:
+                if averages[self.config.PHASES.COUNT - 1] == 5:
                     round_took = time.time() - round_start
                     logger.info(f"Stopped the Round. Took {round_took} seconds to do the Round :)")
                     save_total_kwh(self.config, MEASUREMENTS)

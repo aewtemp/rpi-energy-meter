@@ -36,7 +36,7 @@ class MCP3008:
     
     def read(self, channel = 0):
         # read SPI data from the MCP3008
-        r = self.spi.xfer2([1, 8 + channel << 4, 0])
+        r = self.spi.xfer2([1, (8 + channel) << 4, 0])
         data = ((r[1] & 3) << 8) + r[2]
         return data
             
