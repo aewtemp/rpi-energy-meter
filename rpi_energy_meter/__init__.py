@@ -1,4 +1,3 @@
-
 from .energy_meter import RpiEnergyMeter
 
 __all__ = ["RpiEnergyMeter", "VERSION"]

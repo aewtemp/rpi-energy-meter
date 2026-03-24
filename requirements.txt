@@ -1,7 +1,4 @@
-statsmodels
 spidev
-pydantic
-pandas
 numpy
 scipy
 plotly
@@ -10,3 +7,4 @@ influxdb-client
 tomli
 tomli_w
 prettytable
+ruff

@@ -1,6 +1,9 @@
 import argparse
 import os
+import subprocess
+
 from rpi_energy_meter.energy_meter import RpiEnergyMeter
+
 
 def main():
     """
@@ -22,9 +25,7 @@ def main():
 
     # First get generic paramters
     parser = argparse.ArgumentParser(prog="RpiEnergyMeter", add_help=True)
-    parser.add_argument(
-        "-c", "--config", metavar="<file>", help="Path to config.toml"
-    )
+    parser.add_argument("-c", "--config", metavar="<file>", help="Path to config.toml")
     parser.add_argument(
         "-v",
         "--verbose",
@@ -42,15 +43,8 @@ def main():
         os.environ["CONFIG"] = args.config
 
     if args.command == "tests":
-        print("Running pylint")
-        from pylint.lint import Run  # pylint: disable=import-outside-toplevel
-
-        Run(["RpiEnergyMeter", "--exit-zero"], exit=False)
-
-        # print("Running pytest")
-        # import unittest
-        # tests = unittest.TestLoader().discover('tests')
-        # result = unittest.TextTestRunner(verbosity=2).run(tests)
+        subprocess.run(["ruff", "check", "rpi_energy_meter/"], check=False)
+        subprocess.run(["ruff", "format", "--check", "rpi_energy_meter/"], check=False)
     else:
         em = RpiEnergyMeter(args.config, args.verbose)
         em.run(args.command)
